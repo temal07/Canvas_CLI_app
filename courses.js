@@ -48,7 +48,17 @@ export const fetchMissingAssignments = async () => {
         }));
 }
 
-export const submitHomework = async (courseId, assignmentId, googleDocLink) => {
+export const submitHomework = async (courseId, assignmentId, googleDocLink, selectedType) => {
+    const submissionBody = {
+        submission_type: selectedType,
+    };
+
+    if (selectedType === "online_url") {
+        submissionBody.url = googleDocLink;
+    } else if (selectedType === "online_text_entry") {
+        submissionBody.body = googleDocLink;
+    }
+
     const res = await fetch(`${urlEndpoint}/courses/${courseId}/assignments/${assignmentId}/submissions`, {
         method: "POST",
         headers: {
@@ -56,18 +66,15 @@ export const submitHomework = async (courseId, assignmentId, googleDocLink) => {
             "Content-Type": "application/json",
         }, 
         body: JSON.stringify({
-            submission: {
-                submission_type: "online_url",
-                url: googleDocLink,
-            }
+            submission: submissionBody
         })
     });
 
+    const text = await res.text();
+    
     if (!res.ok) {
-        throw new Error(`Submission failed: ${res.status}`);
+        throw new Error(`Submission failed: ${res.status} - ${JSON.stringify(text)}`);
     }
 
-    const data = await res.json();
-
-    return data;
+    return JSON.parse(text);
 }
