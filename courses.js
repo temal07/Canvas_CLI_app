@@ -25,7 +25,7 @@ export const fetchAllCourses = async () => {
 }
 
 export const fetchMissingAssignments = async () => {
-    const res = await fetch(`${urlEndpoint}/users/self/missing-submissions`, {
+    const res = await fetch(`${urlEndpoint}/users/self/missing_submissions?per_page=100`, {
         headers: {
             "Authorization": `Bearer ${canvasApiToken}`
         }
@@ -34,7 +34,9 @@ export const fetchMissingAssignments = async () => {
     const data = await res.json();
 
     return data
-        .filter((assignment) => assignment.locked_for_user !== true)
+        // This line filters out assignments that are either locked for the user or already have submitted submissions,
+        // returning only those assignments that are both unlocked and have not been submitted yet.
+        .filter((assignment) => assignment.locked_for_user !== true && assignment.has_submitted_submissions !== false)
         .map((assignment) => ({
             "assignment_id": assignment.id,
             "course_id": assignment.course_id,
