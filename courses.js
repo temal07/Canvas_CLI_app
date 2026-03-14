@@ -44,5 +44,30 @@ export const fetchMissingAssignments = async () => {
             "points_possible": assignment.points_possible,
             "due_at": assignment.due_at,
             "submission_types": assignment.submission_types.map((type) => type),
+            "html_url": assignment.html_url,
         }));
+}
+
+export const submitHomework = async (courseId, assignmentId, googleDocLink) => {
+    const res = await fetch(`${urlEndpoint}/courses/${courseId}/assignments/${assignmentId}/submissions`, {
+        method: "POST",
+        headers: {
+            "Authorization": `Bearer ${canvasApiToken}`,
+            "Content-Type": "application/json",
+        }, 
+        body: JSON.stringify({
+            submission: {
+                submission_type: "online_url",
+                url: googleDocLink,
+            }
+        })
+    });
+
+    if (!res.ok) {
+        throw new Error(`Submission failed: ${res.status}`);
+    }
+
+    const data = await res.json();
+
+    return data;
 }
