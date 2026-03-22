@@ -48,8 +48,13 @@ export const fetchMissingAssignments = async () => {
         }));
 }
 
-export const submitHomework = async (courseId, assignmentId, googleDocLink, selectedType) => {
-    const submissionBody = {
+export const submitHomework = async (
+    courseId: number,
+    assignmentId: number,
+    googleDocLink: string,
+    selectedType: string
+) => {
+    const submissionBody: { submission_type: string; url?: string; body?: string } = {
         submission_type: selectedType,
     };
 
